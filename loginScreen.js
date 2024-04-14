@@ -1,34 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import Checkbox from 'expo-checkbox';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Alert } from 'react-native';
 import { auth } from './firebase';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firebase from "firebase/compat";
 import LottieView from 'lottie-react-native';
 
-const updateLastLogin = () => {
-  const user = auth.currentUser;
-  if (user) {
-    const userId = user.uid;
-    const lastLogin = firebase.firestore.FieldValue.serverTimestamp();
-
-    firebase.firestore().collection('users').doc(userId).set(
-      {
-        lastLoginField: lastLogin,
-      },
-      {
-        merge: true
-      } 
-    );
-  }
-}
-
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
   const [rememberMe, setRememberMe] = useState(false);
+
+  const handleForgotPassword = () => {
+    if (email.trim() === '') {
+      Alert.alert('Email Required', 'Please enter your email address.');
+      return;
+    }
+
+    auth.sendPasswordResetEmail(email)
+      .then(() => {
+        Alert.alert('Password Reset Email Sent', 'Please check your email inbox for further instructions.');
+      })
+      .catch(error => {
+        if (error.code === 'auth/user-not-found') {
+          Alert.alert('User Not Found', 'No user found with this email address.');
+        } else {
+          Alert.alert('Error', 'Failed to send password reset email. Please try again later.');
+        }
+      });
+  };
+
+  const updateLastLogin = () => {
+    const user = auth.currentUser;
+    if (user) {
+      const userId = user.uid;
+      const lastLogin = firebase.firestore.FieldValue.serverTimestamp();
+
+      firebase.firestore().collection('users').doc(userId).set(
+        {
+          lastLoginField: lastLogin,
+        },
+        {
+          merge: true
+        } 
+      );
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
@@ -63,7 +82,7 @@ const LoginScreen = () => {
     } catch (error) {
       console.log('Error retrieving', error);
     }
-  }
+  };
 
   const handleLogin = async () => {
     auth.signInWithEmailAndPassword(email, password)
@@ -143,6 +162,9 @@ const LoginScreen = () => {
         <TouchableOpacity style={styles.button} onPress={() => { navigation.navigate('Signup') }}>
           <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleForgotPassword}>
+          <Text style={styles.buttonText}>Forgot Password</Text>
+        </TouchableOpacity>
       </KeyboardAvoidingView>
     </View>
   );
@@ -216,6 +238,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  forgotPassword: {
+    color: 'blue',
+    marginTop: 10,
+    textDecorationLine: 'underline',
+  }
 });
 
 export default LoginScreen;
