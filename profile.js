@@ -6,9 +6,14 @@ import { useIsFocused } from "@react-navigation/native";
 const ProfileScreen = () => {
   const [isEnabled, setIsEnabled] = useState(true);
   const [password, setPassword] = useState('');
-  const [passwordChanged, setPasswordChanged] = useState(false); // State to manage password change message
+  const [passwordChanged, setPasswordChanged] = useState(false);
+  const [lastQuizScore, setLastQuizScore] = useState(0); // State to store last quiz score
+  const [quizScores, setQuizScores] = useState([]); // State to store all quiz scores
+  const [quizAttempts, setQuizAttempts] = useState(0); // State to store quiz attempts
+  const [quizAverage, setQuizAverage] = useState(0);
   const isVisible = useIsFocused();
   const dataDB = db.collection('preferences');
+  const scoresDB = db.collection('scores'); // Assuming this collection stores quiz scores
 
   const handleSwitchChange = () => {
     setIsEnabled(previousState => !previousState);
@@ -18,8 +23,8 @@ const ProfileScreen = () => {
   const handleChangePassword = async () => {
     try {
       await auth.currentUser.updatePassword(password);
-      setPasswordChanged(true); // Set password changed message to true
-      setPassword(''); // Clear password input
+      setPasswordChanged(true);
+      setPassword('');
     } catch (error) {
       console.error('Error changing password:', error);
     }
@@ -41,19 +46,33 @@ const ProfileScreen = () => {
   };
 
   const getData = async () => {
-     try {
-      const snapshot = await dataDB.where('uid', '==', auth.currentUser.uid).get();
-      if (!snapshot.empty) {
-        const docData = snapshot.docs[0].data();
-        setIsEnabled(docData.optionSaved);
-      } else {
-        setIsEnabled(false);
-      }
+    try {
+      const snapshot = await scoresDB.where('userid', '==', auth.currentUser.uid).get();
+  
+      const scores = [];
+      let sum = 0;
+  
+      snapshot.forEach(doc => {
+        const score = doc.data().scores;
+        scores.push(score);
+        sum += score;
+      });
+  
+      const numAttempts = scores.length;
+      const quizAverage = numAttempts > 0 ? sum / numAttempts : 0;
+  
+      setQuizScores(scores);
+      setQuizAttempts(numAttempts);
+      setQuizAverage(quizAverage);
+  
+      // Retrieve the latest quiz score
+      const latestScore = numAttempts > 0 ? Math.max(...scores) : 0;
+      setLastQuizScore(latestScore);
     } catch (error) {
       console.error('Error retrieving data info:', error);
     }
-  };
-
+  };  
+  
   useEffect(() => {
     getData();
   }, [isVisible]);
@@ -76,6 +95,12 @@ const ProfileScreen = () => {
           value={isEnabled}
         />
       </View>
+      <Text style={styles.titleStyle}>Quiz Information</Text>
+      <View style={styles.box}>
+        <Text style={styles.textStyle}>Last Quiz Score: {lastQuizScore}</Text>
+        <Text style={styles.textStyle}>Quiz Average: {quizAverage}</Text>
+        <Text style={styles.textStyle}>Quiz Attempts: {quizAttempts}</Text>
+      </View>
       <TextInput
         style={styles.input}
         placeholder="New Password"
@@ -91,7 +116,7 @@ const ProfileScreen = () => {
       )}
     </View>
   );
-      };
+};
 
 const styles = StyleSheet.create({
   container: {
