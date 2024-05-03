@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, ScrollView } from 'react-native';
+import firebase from "firebase/compat";
 import { db } from './firebase';
 
-const ForumDetailScreen = ({ route }) => {
+const ForumDetailScreen = ({ route, navigation }) => {
     const { forumId, forumName } = route.params;
     const [discussion, setDiscussion] = useState(null); // State to store discussion details
     const [comments, setComments] = useState([]);
@@ -61,28 +62,48 @@ const ForumDetailScreen = ({ route }) => {
         }
     };
 
+    // Function to delete the forum
+    const deleteForum = async () => {
+        try {
+            await db.collection('discussions').doc(forumId).delete();
+            navigation.goBack(); // Navigate back to the previous screen after deletion
+        } catch (error) {
+            console.error('Error deleting forum:', error);
+            Alert.alert('Error', 'Failed to delete forum. Please try again.');
+        }
+    };
+
     // Render loading if discussion details are being fetched
     if (!discussion) {
         return <Text>Loading...</Text>;
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.title}>{discussion.title}</Text>
-                <Text style={styles.description}>{discussion.description}</Text>
-                <Text style={styles.author}>Posted by: {discussion.author}</Text>
-            </View>
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior="padding"
+            keyboardVerticalOffset={100} // Adjust this value as needed
+        >
+            <ScrollView>
+                <View style={styles.header}>
+                    <Text style={styles.title}>{discussion.title}</Text>
+                    <Text style={styles.description}>{discussion.description}</Text>
+                    <Text style={styles.author}>Posted by: {discussion.author}</Text>
+                    <TouchableOpacity onPress={deleteForum} style={styles.deleteButton}>
+                        <Text style={styles.deleteButtonText}>Delete</Text>
+                    </TouchableOpacity>
+                </View>
 
-            {/* Render comments */}
-            <View style={styles.commentsContainer}>
-                {comments.map(comment => (
-                    <View key={comment.id} style={styles.comment}>
-                        <Text style={styles.commentAuthor}>User: {comment.userId}</Text>
-                        <Text style={styles.commentContent}>{comment.content}</Text>
-                    </View>
-                ))}
-            </View>
+                {/* Render comments */}
+                <View style={styles.commentsContainer}>
+                    {comments.map(comment => (
+                        <View key={comment.id} style={styles.comment}>
+                            <Text style={styles.commentAuthor}>User: {comment.userId}</Text>
+                            <Text style={styles.commentContent}>{comment.content}</Text>
+                        </View>
+                    ))}
+                </View>
+            </ScrollView>
 
             {/* Input field to add new comment */}
             <TextInput
@@ -94,7 +115,7 @@ const ForumDetailScreen = ({ route }) => {
             <TouchableOpacity onPress={addComment} style={styles.addButton}>
                 <Text style={styles.addButtonText}>Add Comment</Text>
             </TouchableOpacity>
-        </View>
+        </KeyboardAvoidingView>
     );
 };
 
@@ -126,6 +147,18 @@ const styles = StyleSheet.create({
     author: {
         fontSize: 14,
         color: '#a0a0a0', // Light gray color for author
+    },
+    deleteButton: {
+        backgroundColor: 'red',
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    deleteButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     commentsContainer: {
         marginBottom: 20,
@@ -161,6 +194,5 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
-
 
 export default ForumDetailScreen;
