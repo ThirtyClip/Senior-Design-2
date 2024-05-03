@@ -23,3 +23,9 @@
 
 4. **Explore the Project:**
    - Once the app is running, explore the features and functionalities.
+
+## Additional Notes
+- **Do Not Commit `node_modules` or `.expo` Files:**
+  - Please avoid committing the `node_modules` directory or `.expo` files to version control. These files can be regenerated using `npm install` and `npx expo start`, respectively.
+
+  
