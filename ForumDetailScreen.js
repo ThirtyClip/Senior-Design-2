@@ -162,6 +162,7 @@ const styles = StyleSheet.create({
     },
     commentsContainer: {
         marginBottom: 20,
+        
     },
     comment: {
         marginBottom: 10,
@@ -181,12 +182,15 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         padding: 10,
         backgroundColor: 'white', // White background for input
+        
     },
     addButton: {
+        marginBottom: 30,
         backgroundColor: 'black',
         padding: 10,
         borderRadius: 5,
         alignItems: 'center',
+        
     },
     addButtonText: {
         color: 'white',
