@@ -77,8 +77,10 @@ const HomeScreen = () => {
     { category: 'Learn', screenName: 'Cybersecurity', paramsName: '' },
     { category: 'Quiz me', screenName: 'Testme', paramsName: 'allQuizzes', space: '' },
     { category: 'Human-based attacks', screenName: 'HumanBasedd', paramsName: '' },
-    { category: 'Technology-based attacks', screenName: 'Technologybased', paramsName: '', space: 'Account' },
+    { category: 'Technology-based attacks', screenName: 'Technologybased', paramsName: ''},
+    { category: 'Discussion Forum', screenName: 'GroupDiscussionScreen', paramsName: '' , space: 'Account' },
     { category: 'Profile', screenName: 'Profile', paramsName: '' },
+
   ]
 
   return (

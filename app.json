@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "cybersecurityT",
+    "slug": "cybersecurityT",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "googleServicesFile": "./google-services.json"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": 
+      { 
+        "firebase": 
+         {"apiKey": "AIzaSyBzPXSMs6uipEeoJwu6qvIqiJfyORCKQCs",
+        "authDomain": "cybersecurity-training-app.firebaseapp.com",
+        "projectId": "cybersecurity-training-app",
+        "storageBucket": "cybersecurity-training-app.appspot.com",
+        "messagingSenderId": "527855826805",
+        "appId": "1:527855826805:web:4e75517030330ab3a8053c",
+        "measurementId": "G-SGRRRD1P95"}
+      }
+      }
+}

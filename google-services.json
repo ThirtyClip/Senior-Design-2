@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "527855826805",
+    "project_id": "cybersecurity-training-app",
+    "storage_bucket": "cybersecurity-training-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:527855826805:android:5dbc6a4bdd14cf26a8053c",
+        "android_client_info": {
+          "package_name": "com.csu.cybersecurity"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "527855826805-sl99ln8644cp90f9entr93fqj0468387.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7RQDSsgX0UskzqtH8UDK-r6pwlIALn2s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "527855826805-sl99ln8644cp90f9entr93fqj0468387.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
