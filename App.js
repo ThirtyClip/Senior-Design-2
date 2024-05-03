@@ -23,6 +23,7 @@ import GroupChat from './GroupChat';
 import GroupChatWindow  from './GroupChatWindow';
 import MessageInput from './MessageInput';
 import GroupDiscussionScreen from './GroupDiscussionScreen';
+import ForumDetailScreen from "./ForumDetailScreen";
 
 const Stack =  createNativeStackNavigator();
 
@@ -72,13 +73,22 @@ export default function App({}) {
         <Stack.Screen name="Casestudy" component={Casestudy} options={{ ...screenOptions, title: 'Case Study' }} />
         <Stack.Screen name="Examples" component={Examples} options={{ ...screenOptions, title: 'Real Life Examples' }} />
         <Stack.Screen name="Analytics" component={Analytics} options={{ ...screenOptions, title: 'Analytics' }} />
-	<Stack.Screen name="Group Discussion" component={GroupDiscussionScreen} options={{ ...screenOptions, title: 'Group Discussion'}} />
+	      <Stack.Screen name="GroupDiscussionScreen" component={GroupDiscussionScreen} options={{ ...screenOptions, title: 'Discussion Forum' }} />
+        <Stack.Screen
+  name="ForumDetailScreen"
+  component={ForumDetailScreen}
+  options={({ route }) => ({ 
+    ...screenOptions,
+    title: route.params.forumName || 'Forum' // Set the title to the forum name if available, otherwise default to 'Forum'
+  })}
+/>
+
       </Stack.Navigator>
     </NavigationContainer>
   );
   
 }
-
+ 
 function Analytics() {
   return (
     <View>
