@@ -124,18 +124,18 @@ const ProfileScreen = () => {
       <TouchableOpacity style={styles.button} onPress={handleChangePassword}>
         <Text style={styles.buttonText}>Change Password</Text>
       </TouchableOpacity>
+      {passwordChanged && (
+        <Text style={styles.successMessage}>Password changed successfully!</Text>
+      )}
       <TextInput
         style={styles.input}
         placeholder="New Name"
-        value={newEmail}
+        value={newName}
         onChangeText={text => setNewName(text)}
       />
       <TouchableOpacity style={styles.button} onPress={handleChangeName}>
         <Text style={styles.buttonText}>Change Name</Text>
       </TouchableOpacity>
-      {passwordChanged && (
-        <Text style={styles.successMessage}>Password changed successfully!</Text>
-      )}
     </View>
   );
 };
