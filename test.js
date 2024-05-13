@@ -75,7 +75,7 @@ const TestMe = () => {
   const QuizScreen = ({ questions }) => {
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [score, setScore] = useState(0);
-    const [showScore, setShowScore] = useState(false);
+    const [showScore, setShowScore] = useState(false); // Initialize showScore state
     const [showAllScore, setshowAllScore] = useState(false);
     const [showAnswer, setShowAnswer] = useState(false);
     const [selectColor, setSelectColor] = useState(null);
@@ -202,35 +202,21 @@ const TestMe = () => {
         setSelectColor(null); 
       }
       else {
-        if (route.params.name === 'allQuizzes') {
-          setshowAllScore(true);
-          const scores = [
-            {
-              scores: score,
-              userid: auth.currentUser.uid,
-              quizName: route.params.name
-            }
-          ]
-          insertData(scores);
-          updateScores(auth.currentUser.uid, route.params.name, score)
-        }
-        else {
-          setShowScore(true); 
-
-          const scores = [
-            {
-              scores: score,
-              userid: auth.currentUser.uid,
-              quizName: route.params.name
-            }
-          ]
-          insertData(scores);
-          updateScores(auth.currentUser.uid, route.params.name, score)
-        }
-
+        setShowScore(true); // Set showScore to true at the end of the quiz
+    
+        const scores = [
+          {
+            scores: score,
+            userid: auth.currentUser.uid,
+            quizName: route.params.name
+          }
+        ]
+        insertData(scores);
+        updateScores(auth.currentUser.uid, route.params.name, score);
+    
       }
     };
-
+    
     const getOptionBackgroundColor = (selectedOption) => {
       const isSelected = selectColor === selectedOption;
       const isCorrect = selectedOption === questions[currentQuestion].correctAnswer;
@@ -259,105 +245,87 @@ const TestMe = () => {
     return (
       <View style={styles.overlay}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, flexDirection: 'column', }}>
-          <Text style={styles.questionStyle}>{questions[currentQuestion].question}</Text>
-          {questions[currentQuestion].options.map((option, index) => (
-            <TouchableOpacity
-              key={index}
-              style={{ padding: 10, marginTop: 10, backgroundColor: getOptionBackgroundColor(option), width: 400, alignItems: 'center' }}
-              onPress={() => handleAnswer(option)} disabled={disable !== null}>
-              <Text style={styles.optionStyle}>{option}</Text>
-            </TouchableOpacity>
-          ))}
-          {showAnswer && (<Text style={styles.correctAnswerStyle}>Correct Answer: {questions[currentQuestion].correctAnswer} {'\n\n'}Reason: {questions[currentQuestion].reason}</Text>
-          )}
-          <View style={{ flex: 1, justifyContent: 'flex-end', alignSelf: 'center', margin: 50 }}>
-            <View style={{}}>
-              <TouchableOpacity
-                style={[styles.buttonStyle,]}
-                onPress={() => nextQuestion()}
-              ><Text style={styles.buttonText}>Next</Text></TouchableOpacity>
+          {showScore ? (
+            <View style={styles.scoreContainer}>
+              <Text style={styles.scoreText}>Your Score: {score}</Text>
+              <ScrollView style={{ width: '100%' }}>
+                <View style={styles.titleView}>
+                  <Text style={styles.titleStyle}>Results:</Text>
+                </View>
+                <Text style={styles.textStyle}>You scored {score} out of {questions.length}</Text>
+                <View style={styles.innerView}></View>
+                {maxScore >= score && <Text style={styles.textStyle}>Max Score: {maxScore}</Text>}
+                {maxScore < score && <Text style={styles.textStyle}>Max Score: {score}</Text>}
+                <View style={styles.titleView}>
+                  <Text style={styles.breakdownStyle}>Breakdown:</Text>
+                </View>
+                {breakdownViews.map(({category, scoreType}, index) => (
+                  <View key={category + index}>
+                    <Text key={category + index + 'text'} style={styles.textStyle}>{[category]} {scores[scoreType]}/3</Text>
+                    <View style={styles.innerView}></View>
+                  </View>
+                ))}
+              </ScrollView>
             </View>
-          </View>
+          ) : (
+            <>
+              <Text style={styles.questionStyle}>{questions[currentQuestion].question}</Text>
+              {questions[currentQuestion].options.map((option, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={{ padding: 10, marginTop: 10, backgroundColor: getOptionBackgroundColor(option), width: 400, alignItems: 'center' }}
+                  onPress={() => handleAnswer(option)} disabled={disable !== null}>
+                  <Text style={styles.optionStyle}>{option}</Text>
+                </TouchableOpacity>
+              ))}
+              {showAnswer && (<Text style={styles.correctAnswerStyle}>Correct Answer: {questions[currentQuestion].correctAnswer} {'\n\n'}Reason: {questions[currentQuestion].reason}</Text>
+              )}
+              <View style={{ flex: 1, justifyContent: 'flex-end', alignSelf: 'center', margin: 50 }}>
+                <View style={{}}>
+                  <TouchableOpacity
+                    style={[styles.buttonStyle,]}
+                    onPress={() => nextQuestion()}
+                  ><Text style={styles.buttonText}>Next</Text></TouchableOpacity>
+                </View>
+              </View>
+            </>
+          )}
         </ScrollView>
       </View>
     );
-  }
-
+  };
   const getQuizQuestions = async () => {
     try {
       const snapshot = await quizQuestionsDB.get();
       const questions = [];
-
+  
       snapshot.forEach((doc) => {
         const questionData = doc.data();
         questions.push(questionData);
       });
-
-      return questions;
+  
+      // Shuffle the questions array
+      const shuffledQuestions = questions.sort(() => Math.random() - 0.5);
+      // Return only the first 12 questions
+      return shuffledQuestions.slice(0, 12);
     } catch (error) {
       console.error('Error retrieving quiz questions:', error);
       return [];
     }
-  };
+  };  
 
   const fetchQuestions = async () => {
-    const questions = await getQuizQuestions();
-    const q1 = questions.filter((question) => question.type === 'Impersonation');
-    const q2 = questions.filter((question) => question.type === 'Eavesdropping');
-    const q3 = questions.filter((question) => question.type === 'Shoulder Surfing');
-    const q4 = questions.filter((question) => question.type === 'Dumpster Diving');
-    const q5 = questions.filter((question) => question.type === 'Tailgating');
-    const q6 = questions.filter((question) => question.type === 'Baiting');
-    const q7 = questions.filter((question) => question.type === 'Smishing');
-    const q8 = questions.filter((question) => question.type === 'Vishing');
-    const q9 = questions.filter((question) => question.type === 'Whaling');
-    const q10 = questions.filter((question) => question.type === 'Spear Phishing');
-    const q11 = questions.filter((question) => question.type === 'Pretexting');
-    switch (route.params.name) {
-      case 'Impersonation':
-        setSelectedComponent(<QuizScreen questions={q1} />);
-        break;
-      case 'Eavesdropping':
-        setSelectedComponent(<QuizScreen questions={q2} />);
-        break;
-      case 'Shoulder Surfing':
-        setSelectedComponent(<QuizScreen questions={q3} />);
-        break;
-      case 'Dumpster Diving':
-        setSelectedComponent(<QuizScreen questions={q4} />);
-        break;
-      case 'Tailgating/Piggybacking':
-        setSelectedComponent(<QuizScreen questions={q5} />);
-        break;
-      case 'Baiting':
-        setSelectedComponent(<QuizScreen questions={q6} />);
-        break;
-      case 'Smishing':
-        setSelectedComponent(<QuizScreen questions={q7} />);
-        break;
-      case 'Vishing':
-        setSelectedComponent(<QuizScreen questions={q8} />);
-        break;
-      case 'Whaling':
-        setSelectedComponent(<QuizScreen questions={q9} />);
-        break;
-      case 'spearPhishing':
-        setSelectedComponent(<QuizScreen questions={q10} />);
-        break;
-      case 'Pretexting':
-        setSelectedComponent(<QuizScreen questions={q11} />);
-        break;
-      case 'allQuizzes':
-        setSelectedComponent(<QuizScreen questions={questions} />)
-        break;
-      default:
-        return (
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <ScrollView style={styles.listArea}></ScrollView>
-          </View>
-        );
+    try {
+      const questions = await getQuizQuestions();
+      // Shuffle the questions array
+      const shuffledQuestions = questions.sort(() => Math.random() - 0.5);
+      // Pass the shuffled questions to the QuizScreen component
+      setSelectedComponent(<QuizScreen questions={shuffledQuestions} />);
+    } catch (error) {
+      console.error('Error fetching questions:', error);
     }
   };
+  
   useEffect(() => {
     fetchQuestions();
   }, []);
@@ -436,6 +404,35 @@ const styles = StyleSheet.create({
     color: 'white',
     padding: 20,
   },
+  scoreContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 20,
+  },
+  scoreText: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 20,
+  },
+  breakdownStyle: {
+    fontSize: 25,
+    color: 'white',
+    marginTop: 20,
+  },
+  textStyle: {
+    fontSize: 20,
+    color: 'white',
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  innerView: {
+    borderBottomColor: 'white',
+    borderBottomWidth: 1,
+    marginTop: 10,
+    marginBottom: 10,
+  }
 });
 
 export default TestMe;
