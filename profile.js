@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Switch } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Switch, Alert } from 'react-native';
 import { auth, db } from './firebase';
 import { useIsFocused } from "@react-navigation/native";
 
 const ProfileScreen = () => {
   const [isEnabled, setIsEnabled] = useState(true);
   const [password, setPassword] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newName, setNewName] = useState('');
   const [passwordChanged, setPasswordChanged] = useState(false);
-  const [lastQuizScore, setLastQuizScore] = useState(0); // State to store last quiz score
-  const [quizScores, setQuizScores] = useState([]); // State to store all quiz scores
-  const [quizAttempts, setQuizAttempts] = useState(0); // State to store quiz attempts
+  const [lastQuizScore, setLastQuizScore] = useState(0);
+  const [quizScores, setQuizScores] = useState([]);
+  const [quizAttempts, setQuizAttempts] = useState(0);
   const [quizAverage, setQuizAverage] = useState(0);
   const isVisible = useIsFocused();
   const dataDB = db.collection('preferences');
-  const scoresDB = db.collection('scores'); // Assuming this collection stores quiz scores
+  const scoresDB = db.collection('scores');
 
   const handleSwitchChange = () => {
     setIsEnabled(previousState => !previousState);
@@ -27,6 +29,28 @@ const ProfileScreen = () => {
       setPassword('');
     } catch (error) {
       console.error('Error changing password:', error);
+    }
+  };
+
+  const handleChangeEmail = async () => {
+    try {
+      await auth.currentUser.updateEmail(newEmail);
+      Alert.alert('Success', 'Email address updated successfully.');
+      setNewEmail('');
+    } catch (error) {
+      console.error('Error changing email:', error);
+    }
+  };
+
+  const handleChangeName = async () => {
+    try {
+      await auth.currentUser.updateProfile({
+        displayName: newName
+      });
+      Alert.alert('Success', 'Name updated successfully.');
+      setNewName('');
+    } catch (error) {
+      console.error('Error changing name:', error);
     }
   };
 
@@ -65,7 +89,6 @@ const ProfileScreen = () => {
       setQuizAttempts(numAttempts);
       setQuizAverage(quizAverage);
   
-      // Retrieve the latest quiz score
       const latestScore = numAttempts > 0 ? Math.max(...scores) : 0;
       setLastQuizScore(latestScore);
     } catch (error) {
@@ -95,22 +118,37 @@ const ProfileScreen = () => {
           value={isEnabled}
         />
       </View>
-      <Text style={styles.titleStyle}>Quiz Information</Text>
-      <View style={styles.box}>
-        <Text style={styles.textStyle}>Last Quiz Score: {lastQuizScore}</Text>
-        <Text style={styles.textStyle}>Quiz Average: {quizAverage}</Text>
-        <Text style={styles.textStyle}>Quiz Attempts: {quizAttempts}</Text>
+      <Text style={styles.titleStyle}>Change Options</Text>
+      <View style={styles.optionsContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="New Password"
+          secureTextEntry
+          value={password}
+          onChangeText={text => setPassword(text)}
+        />
+        <TouchableOpacity style={styles.button} onPress={handleChangePassword}>
+          <Text style={styles.buttonText}>Change Password</Text>
+        </TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder="New Email"
+          value={newEmail}
+          onChangeText={text => setNewEmail(text)}
+        />
+        <TouchableOpacity style={styles.button} onPress={handleChangeEmail}>
+          <Text style={styles.buttonText}>Change Email</Text>
+        </TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder="New Name"
+          value={newName}
+          onChangeText={text => setNewName(text)}
+        />
+        <TouchableOpacity style={styles.button} onPress={handleChangeName}>
+          <Text style={styles.buttonText}>Change Name</Text>
+        </TouchableOpacity>
       </View>
-      <TextInput
-        style={styles.input}
-        placeholder="New Password"
-        secureTextEntry
-        value={password}
-        onChangeText={text => setPassword(text)}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleChangePassword}>
-        <Text style={styles.buttonText}>Change Password</Text>
-      </TouchableOpacity>
       {passwordChanged && (
         <Text style={styles.successMessage}>Password changed successfully!</Text>
       )}
@@ -143,6 +181,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 5
   },
+  optionsContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
   input: {
     width: '100%',
     height: 40,
@@ -158,11 +200,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
     padding: 10,
     width: '100%',
-    margin: 5,
+    marginVertical: 5,
     alignItems: 'center',
     height: 40,
     justifyContent: 'center',
-    alignItems: 'center',
     borderRadius: 5,
   },
   buttonText: {
