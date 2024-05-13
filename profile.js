@@ -32,16 +32,6 @@ const ProfileScreen = () => {
     }
   };
 
-  const handleChangeEmail = async () => {
-    try {
-      await auth.currentUser.updateEmail(newEmail);
-      Alert.alert('Success', 'Email address updated successfully.');
-      setNewEmail('');
-    } catch (error) {
-      console.error('Error changing email:', error);
-    }
-  };
-
   const handleChangeName = async () => {
     try {
       await auth.currentUser.updateProfile({
@@ -118,37 +108,31 @@ const ProfileScreen = () => {
           value={isEnabled}
         />
       </View>
-      <Text style={styles.titleStyle}>Change Options</Text>
-      <View style={styles.optionsContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="New Password"
-          secureTextEntry
-          value={password}
-          onChangeText={text => setPassword(text)}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleChangePassword}>
-          <Text style={styles.buttonText}>Change Password</Text>
-        </TouchableOpacity>
-        <TextInput
-          style={styles.input}
-          placeholder="New Email"
-          value={newEmail}
-          onChangeText={text => setNewEmail(text)}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleChangeEmail}>
-          <Text style={styles.buttonText}>Change Email</Text>
-        </TouchableOpacity>
-        <TextInput
-          style={styles.input}
-          placeholder="New Name"
-          value={newName}
-          onChangeText={text => setNewName(text)}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleChangeName}>
-          <Text style={styles.buttonText}>Change Name</Text>
-        </TouchableOpacity>
+      <Text style={styles.titleStyle}>Quiz Information</Text>
+      <View style={styles.box}>
+        <Text style={styles.textStyle}>Last Quiz Score: {lastQuizScore}</Text>
+        <Text style={styles.textStyle}>Quiz Average: {quizAverage}</Text>
+        <Text style={styles.textStyle}>Quiz Attempts: {quizAttempts}</Text>
       </View>
+      <TextInput
+        style={styles.input}
+        placeholder="New Password"
+        secureTextEntry
+        value={password}
+        onChangeText={text => setPassword(text)}
+      />
+      <TouchableOpacity style={styles.button} onPress={handleChangePassword}>
+        <Text style={styles.buttonText}>Change Password</Text>
+      </TouchableOpacity>
+      <TextInput
+        style={styles.input}
+        placeholder="New Name"
+        value={newEmail}
+        onChangeText={text => setNewName(text)}
+      />
+      <TouchableOpacity style={styles.button} onPress={handleChangeName}>
+        <Text style={styles.buttonText}>Change Name</Text>
+      </TouchableOpacity>
       {passwordChanged && (
         <Text style={styles.successMessage}>Password changed successfully!</Text>
       )}
@@ -181,10 +165,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 5
   },
-  optionsContainer: {
-    width: '100%',
-    alignItems: 'center',
-  },
   input: {
     width: '100%',
     height: 40,
@@ -200,10 +180,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
     padding: 10,
     width: '100%',
-    marginVertical: 5,
+    margin: 5,
     alignItems: 'center',
     height: 40,
     justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 5,
   },
   buttonText: {
